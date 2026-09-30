@@ -1,0 +1,2113 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>My Pin Downloader</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background: #fafafa;
+            color: #222;
+        }
+
+        header {
+            height: 70px;
+            background: white;
+            border-bottom: 1px solid #eeeeee;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            padding: 0 50px;
+        }
+
+        .logo {
+            text-decoration: none;
+            color: #e60023;
+
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .header-text {
+            color: #777;
+            font-size: 14px;
+        }
+
+        .hero {
+            text-align: center;
+            padding: 80px 20px 40px;
+        }
+
+        .hero h1 {
+            margin: 0;
+            font-size: 48px;
+            line-height: 1.15;
+            font-weight: 700;
+        }
+
+        .hero h1 span {
+            color: #e60023;
+        }
+
+        .subtitle {
+            max-width: 650px;
+            margin: 20px auto 0;
+
+            color: #666;
+            font-size: 18px;
+            line-height: 1.6;
+        }
+
+        .downloader {
+            width: 750px;
+            max-width: 92%;
+
+            margin: 35px auto 0;
+        }
+
+        .search-box {
+            background: white;
+
+            border: 1px solid #e5e5e5;
+            border-radius: 18px;
+
+            padding: 10px;
+
+            display: flex;
+            align-items: center;
+
+            box-shadow:
+                    0 10px 35px rgba(0, 0, 0, 0.08);
+        }
+
+        .input-wrapper {
+            flex: 1;
+
+            display: flex;
+            align-items: center;
+
+            min-width: 0;
+        }
+
+        #pinterestUrl {
+            flex: 1;
+            min-width: 0;
+
+            border: none;
+            outline: none;
+
+            padding: 17px 20px;
+
+            font-size: 16px;
+            color: #222;
+
+            background: transparent;
+        }
+
+        #pinterestUrl:focus {
+            box-shadow:
+                    0 0 0 3px rgba(230, 0, 35, 0.12);
+        }
+
+        #pinterestUrl::placeholder {
+            color: #999;
+        }
+
+        button {
+            font-family: inherit;
+        }
+
+        .paste-button {
+            border: none;
+
+            background: #f1f1f1;
+            color: #333;
+
+            padding: 10px 16px;
+
+            border-radius: 10px;
+
+            font-size: 14px;
+            font-weight: 600;
+
+            cursor: pointer;
+
+            white-space: nowrap;
+        }
+
+        .paste-button:hover {
+            background: #e5e5e5;
+        }
+
+        .download-main,
+        .clear-button {
+            border: none;
+
+            padding: 16px 25px;
+
+            border-radius: 12px;
+
+            font-size: 15px;
+            font-weight: 700;
+
+            cursor: pointer;
+
+            transition:
+                    transform 0.2s,
+                    background 0.2s,
+                    opacity 0.2s;
+        }
+
+        .download-main {
+            background: #e60023;
+            color: white;
+        }
+
+        .download-main:hover {
+            background: #c9001f;
+            transform: translateY(-1px);
+        }
+
+        .download-main:disabled {
+            background: #999;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .clear-button {
+            background: #f1f1f1;
+            color: #333;
+
+            margin-left: 8px;
+        }
+
+        .clear-button:hover {
+            background: #e5e5e5;
+        }
+
+        .supported {
+            margin-top: 18px;
+
+            color: #888;
+            font-size: 14px;
+        }
+
+        #message {
+            margin-top: 35px;
+        }
+
+        .loader-container {
+            text-align: center;
+            padding: 30px;
+        }
+
+        .loader {
+            width: 45px;
+            height: 45px;
+
+            border: 4px solid #eeeeee;
+            border-top: 4px solid #e60023;
+
+            border-radius: 50%;
+
+            animation: spin 0.9s linear infinite;
+
+            margin: 0 auto 18px;
+        }
+
+        .loader-text {
+            color: #666;
+            font-size: 15px;
+        }
+
+        .progress-bar {
+            width: 260px;
+            height: 6px;
+
+            margin: 15px auto 0;
+
+            background: #eeeeee;
+
+            border-radius: 10px;
+
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            width: 35%;
+            height: 100%;
+
+            background: #e60023;
+
+            border-radius: 10px;
+
+            animation:
+                    progressLoading 1.4s
+                    ease-in-out infinite;
+        }
+
+        @keyframes progressLoading {
+
+            0% {
+                transform: translateX(-120%);
+            }
+
+            50% {
+                transform: translateX(180%);
+            }
+
+            100% {
+                transform: translateX(300%);
+            }
+        }
+
+        @keyframes spin {
+
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .result-card {
+            width: 100%;
+            max-width: 600px;
+
+            margin: 0 auto;
+
+            padding: 30px;
+
+            background: white;
+
+            border: 1px solid #eeeeee;
+
+            border-radius: 20px;
+
+            box-shadow:
+                    0 12px 40px rgba(0, 0, 0, 0.08);
+
+            text-align: center;
+        }
+
+        .success-message {
+            display: inline-flex;
+
+            align-items: center;
+
+            gap: 6px;
+
+            margin-bottom: 15px;
+
+            padding: 7px 13px;
+
+            background: #eaf8ef;
+
+            border: 1px solid #c8ecd3;
+
+            color: #218739;
+
+            border-radius: 20px;
+
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .result-title {
+            font-size: 18px;
+
+            font-weight: 700;
+
+            margin: 0 0 20px;
+        }
+
+        .result-card img,
+        .result-card video {
+
+            display: block;
+
+            width: 100%;
+
+            max-width: 520px;
+
+            max-height: 600px;
+
+            object-fit: contain;
+
+            margin: 0 auto 25px;
+
+            border-radius: 12px;
+
+            background: #f5f5f5;
+        }
+
+        .result-card video {
+            max-height: 500px;
+        }
+
+        .download-button {
+            display: inline-block;
+            text-decoration: none;
+        }
+
+        .download-button button {
+
+            border: none;
+
+            background: #e60023;
+
+            color: white;
+
+            padding: 15px 32px;
+
+            border-radius: 12px;
+
+            font-size: 16px;
+
+            font-weight: 700;
+
+            cursor: pointer;
+
+            transition:
+                    background 0.2s,
+                    transform 0.2s;
+        }
+
+        .download-button button:hover {
+            background: #c9001f;
+            transform: translateY(-2px);
+        }
+
+        .download-button button:disabled {
+            background: #999;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .video-resolution {
+            margin: 8px 0 15px;
+            font-size: 14px;
+            opacity: 0.8;
+        }
+
+        .download-spinner {
+
+            display: inline-block;
+
+            width: 14px;
+            height: 14px;
+
+            margin-right: 7px;
+
+            border: 2px solid
+            rgba(255, 255, 255, 0.5);
+
+            border-top-color: white;
+
+            border-radius: 50%;
+
+            animation:
+                    downloadSpin 0.7s linear infinite;
+
+            vertical-align: middle;
+        }
+
+        @keyframes downloadSpin {
+
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .download-another-button {
+
+            border: 1px solid #ddd;
+
+            background: white;
+
+            color: #333;
+
+            padding: 14px 28px;
+
+            border-radius: 12px;
+
+            font-size: 15px;
+
+            font-weight: 700;
+
+            cursor: pointer;
+
+            margin-left: 8px;
+
+            transition:
+                    background 0.2s,
+                    transform 0.2s;
+        }
+
+        .download-another-button:hover {
+
+            background: #f1f1f1;
+
+            transform: translateY(-2px);
+        }
+
+        .error-message {
+
+            max-width: 600px;
+
+            margin: 0 auto;
+
+            padding: 18px 20px;
+
+            display: flex;
+
+            align-items: flex-start;
+
+            gap: 12px;
+
+            background: #fff0f2;
+
+            border: 1px solid #ffd1d7;
+
+            color: #c4001c;
+
+            border-radius: 12px;
+
+            font-size: 15px;
+
+            text-align: left;
+        }
+
+        .error-icon {
+
+            font-size: 20px;
+
+            font-weight: 700;
+
+            line-height: 1;
+        }
+        .pin-id {
+            font-size: 13px;
+            margin-bottom: 10px;
+            opacity: 0.7;
+        }
+
+        .error-message strong {
+
+            display: block;
+
+            margin-bottom: 4px;
+
+            font-size: 15px;
+        }
+
+        .error-message p {
+
+            margin: 0;
+
+            color: #c4001c;
+
+            font-size: 14px;
+        }
+
+        .video-quality {
+
+            margin-bottom: 20px;
+
+            text-align: left;
+        }
+
+        .video-quality label {
+
+            display: block;
+
+            margin-bottom: 8px;
+
+            font-weight: 700;
+
+            font-size: 14px;
+        }
+
+        .video-quality select {
+
+            width: 100%;
+
+            padding: 13px 15px;
+
+            border: 1px solid #ddd;
+
+            border-radius: 10px;
+
+            background: white;
+
+            font-size: 15px;
+
+            cursor: pointer;
+        }
+
+        .info-section {
+
+            max-width: 900px;
+
+            margin: 90px auto 0;
+
+            padding: 0 20px;
+
+            text-align: center;
+        }
+
+        .info-section h2 {
+
+            font-size: 28px;
+
+            margin-bottom: 35px;
+        }
+
+        .features {
+
+            display: grid;
+
+            grid-template-columns:
+            repeat(3, 1fr);
+
+            gap: 20px;
+        }
+
+        .feature {
+
+            background: white;
+
+            border: 1px solid #eeeeee;
+
+            border-radius: 16px;
+
+            padding: 28px 20px;
+        }
+
+        .feature-icon {
+
+            font-size: 30px;
+
+            margin-bottom: 12px;
+        }
+
+        .feature h3 {
+
+            margin: 0 0 10px;
+
+            font-size: 17px;
+        }
+
+        .feature p {
+
+            margin: 0;
+
+            color: #777;
+
+            font-size: 14px;
+
+            line-height: 1.5;
+        }
+
+        footer {
+
+            margin-top: 100px;
+
+            padding: 30px 20px;
+
+            border-top: 1px solid #eeeeee;
+
+            background: white;
+
+            text-align: center;
+
+            color: #888;
+
+            font-size: 14px;
+        }
+
+        @media (max-width: 700px) {
+
+            header {
+
+                height: 65px;
+
+                padding: 0 20px;
+            }
+
+            .logo {
+                font-size: 21px;
+            }
+
+            .header-text {
+                display: none;
+            }
+
+            .hero {
+                padding-top: 60px;
+            }
+
+            .hero h1 {
+                font-size: 36px;
+            }
+
+            .subtitle {
+                font-size: 16px;
+            }
+
+            .search-box {
+
+                flex-direction: column;
+
+                padding: 10px;
+
+                border-radius: 15px;
+            }
+
+            .input-wrapper {
+                width: 100%;
+            }
+
+            #pinterestUrl {
+
+                width: 100%;
+
+                padding: 16px;
+            }
+
+            .paste-button {
+                margin-right: 5px;
+            }
+
+            .download-main,
+            .clear-button {
+                width: 100%;
+            }
+
+            .download-main {
+                margin-top: 8px;
+            }
+
+            .clear-button {
+
+                margin-left: 0;
+
+                margin-top: 8px;
+            }
+
+            .features {
+                grid-template-columns: 1fr;
+            }
+
+            .result-card {
+                padding: 20px;
+            }
+
+            .download-button {
+                width: 100%;
+            }
+
+            .download-button button {
+                width: 100%;
+            }
+
+            .download-another-button {
+
+                width: 100%;
+
+                margin-left: 0;
+
+                margin-top: 10px;
+            }
+        }
+
+    </style>
+
+
+</head>
+
+<body>
+
+<header>
+
+
+    <a href="/" class="logo">
+        My Pin Downloader
+    </a>
+
+    <div class="header-text">
+        Simple & Fast Pinterest Downloader
+    </div>
+
+
+</header>
+
+<section class="hero">
+
+
+    <h1>
+        Download Pinterest
+        <span>Media</span>
+    </h1>
+
+    <p class="subtitle">
+        Download images and videos from public
+        Pinterest Pins quickly and easily.
+    </p>
+
+
+    <div class="downloader">
+
+        <div class="search-box">
+
+            <div class="input-wrapper">
+
+                <input
+                        type="text"
+                        id="pinterestUrl"
+                        placeholder="Paste Pinterest URL here"
+                        autocomplete="off"
+                >
+
+                <button
+                        type="button"
+                        class="paste-button"
+                        onclick="pastePinterestUrl()"
+                >
+                    Paste
+                </button>
+
+            </div>
+
+            <button
+                    type="button"
+                    class="download-main"
+                    onclick="downloadPinterest()"
+            >
+                Download
+            </button>
+
+            <button
+                    type="button"
+                    class="clear-button"
+                    onclick="clearDownloader()"
+            >
+                Clear
+            </button>
+
+        </div>
+
+        <div class="supported">
+            Supports Pinterest Pins and pin.it links
+        </div>
+
+        <div id="message"></div>
+
+    </div>
+
+
+</section>
+
+<section class="info-section">
+
+
+    <h2>
+        Simple, Fast and Easy
+    </h2>
+
+    <div class="features">
+
+        <div class="feature">
+
+            <div class="feature-icon">
+                📷
+            </div>
+
+            <h3>
+                Download Images
+            </h3>
+
+            <p>
+                Download images from public
+                Pinterest Pins in high quality.
+            </p>
+
+        </div>
+
+
+        <div class="feature">
+
+            <div class="feature-icon">
+                🎬
+            </div>
+
+            <h3>
+                Download Videos
+            </h3>
+
+            <p>
+                Download videos from supported
+                public Pinterest Pins.
+            </p>
+
+        </div>
+
+
+        <div class="feature">
+
+            <div class="feature-icon">
+                ⚡
+            </div>
+
+            <h3>
+                Fast Processing
+            </h3>
+
+            <p>
+                Paste your Pinterest link and get
+                your downloadable media quickly.
+            </p>
+
+        </div>
+
+    </div>
+
+
+</section>
+
+<footer>
+    My Pin Downloader
+</footer>
+
+<script>
+
+    /* =========================================================
+       GLOBAL PIN ID
+       ========================================================= */
+
+    window.currentPinId = "";
+
+
+    /* =========================================================
+       GET PIN ID FROM URL
+       ========================================================= */
+
+    function extractPinId(url) {
+
+        if (!url) {
+            return "";
+        }
+
+        const match =
+            url.match(/\/pin\/(\d+)/i);
+
+        if (match) {
+            return match[1];
+        }
+
+        return "";
+    }
+
+
+    /* =========================================================
+       VALIDATE PINTEREST URL
+       ========================================================= */
+
+    function isValidPinterestUrl(url) {
+
+        if (!url) {
+            return false;
+        }
+
+        try {
+
+            const parsed =
+                new URL(url);
+
+            const hostname =
+                parsed.hostname.toLowerCase();
+
+            return (
+                hostname === "pinterest.com" ||
+                hostname.endsWith(".pinterest.com") ||
+                hostname === "pin.it"
+            );
+
+        } catch (error) {
+
+            return false;
+        }
+    }
+
+
+    /* =========================================================
+       PASTE
+       ========================================================= */
+
+    async function pastePinterestUrl() {
+
+        const input =
+            document.getElementById(
+                "pinterestUrl"
+            );
+
+        const pasteButton =
+            document.querySelector(
+                ".paste-button"
+            );
+
+        try {
+
+            if (
+                !navigator.clipboard ||
+                !navigator.clipboard.readText
+            ) {
+
+                throw new Error(
+                    "Clipboard API unavailable"
+                );
+            }
+
+            const text =
+                await navigator.clipboard.readText();
+
+            if (!text.trim()) {
+
+                input.focus();
+
+                return;
+            }
+
+            input.value =
+                text.trim();
+
+            input.focus();
+
+            pasteButton.innerText =
+                "Pasted ✓";
+
+            setTimeout(function() {
+
+                pasteButton.innerText =
+                    "Paste";
+
+            }, 1500);
+
+            downloadPinterest();
+
+        } catch (error) {
+
+            console.error(
+                "Clipboard error:",
+                error
+            );
+
+            input.focus();
+
+            alert(
+                "Clipboard access was blocked.\n\n" +
+                "Please click inside the URL box and press Ctrl + V."
+            );
+        }
+    }
+
+
+    /* =========================================================
+       MAIN DOWNLOAD FUNCTION
+       ========================================================= */
+
+    async function downloadPinterest() {
+
+        const downloadButton =
+            document.querySelector(
+                ".download-main"
+            );
+
+        const input =
+            document.getElementById(
+                "pinterestUrl"
+            );
+
+        const message =
+            document.getElementById(
+                "message"
+            );
+
+        const pinterestUrl =
+            input.value.trim();
+
+
+        /* -----------------------------------------------------
+           Empty URL
+           ----------------------------------------------------- */
+
+        if (!pinterestUrl) {
+
+            showError(
+                "Please enter a Pinterest URL."
+            );
+
+            input.focus();
+
+            return;
+        }
+
+
+        /* -----------------------------------------------------
+           Validate URL
+           ----------------------------------------------------- */
+
+        if (!isValidPinterestUrl(
+            pinterestUrl
+        )) {
+
+            showError(
+                "Please enter a valid Pinterest URL."
+            );
+
+            input.focus();
+
+            return;
+        }
+
+
+        /* -----------------------------------------------------
+           Get Pin ID if it exists in the URL
+           ----------------------------------------------------- */
+
+        const pinId =
+            extractPinId(
+                pinterestUrl
+            );
+
+        window.currentPinId =
+            pinId;
+
+
+        /* -----------------------------------------------------
+           Disable button
+           ----------------------------------------------------- */
+
+        downloadButton.disabled =
+            true;
+
+        downloadButton.innerHTML = `
+            <span class="download-spinner"></span>
+            Processing...
+        `;
+
+
+        /* -----------------------------------------------------
+           Show loader
+           ----------------------------------------------------- */
+
+        message.innerHTML = `
+
+            <div class="loader-container">
+
+                <div class="loader"></div>
+
+                <div
+                    id="loaderText"
+                    class="loader-text"
+                >
+                    Processing your Pinterest link...
+                </div>
+
+                <div class="progress-bar">
+
+                    <div
+                        class="progress-fill"
+                    ></div>
+
+                </div>
+
+            </div>
+
+        `;
+
+
+        const loaderText =
+            document.getElementById(
+                "loaderText"
+            );
+
+
+        const textTimer1 =
+            setTimeout(function() {
+
+                if (loaderText) {
+
+                    loaderText.innerText =
+                        "Finding Pinterest media...";
+                }
+
+            }, 800);
+
+
+        const textTimer2 =
+            setTimeout(function() {
+
+                if (loaderText) {
+
+                    loaderText.innerText =
+                        "Preparing your download...";
+                }
+
+            }, 1600);
+
+
+        const textTimer3 =
+            setTimeout(function() {
+
+                if (loaderText) {
+
+                    loaderText.innerText =
+                        "Almost ready...";
+                }
+
+            }, 2400);
+
+
+        try {
+
+            console.log(
+                "Sending URL to backend:",
+                pinterestUrl
+            );
+
+
+            /* -------------------------------------------------
+               Call Spring Boot
+               ------------------------------------------------- */
+
+            const response =
+                await fetch(
+                    "/api/download",
+                    {
+
+                        method: "POST",
+
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        },
+
+                        body: JSON.stringify({
+                            pinterestUrl:
+                            pinterestUrl
+                        })
+                    }
+                );
+
+
+            console.log(
+                "Backend HTTP status:",
+                response.status
+            );
+
+
+            /* -------------------------------------------------
+               HTTP error
+               ------------------------------------------------- */
+
+            if (!response.ok) {
+
+                throw new Error(
+                    "Server returned HTTP " +
+                    response.status
+                );
+            }
+
+
+            /* -------------------------------------------------
+               Read JSON
+               ------------------------------------------------- */
+
+            const data =
+                await response.json();
+
+
+            console.log(
+                "Backend response:",
+                data
+            );
+
+
+            clearTimeout(textTimer1);
+            clearTimeout(textTimer2);
+            clearTimeout(textTimer3);
+
+
+            /* -------------------------------------------------
+               Backend failure
+               ------------------------------------------------- */
+
+            if (!data.success) {
+
+                showError(
+                    data.message ||
+                    "Unable to find media."
+                );
+
+                resetMainButton();
+
+                return;
+            }
+
+
+            /* -------------------------------------------------
+               Save Pin ID
+               ------------------------------------------------- */
+
+            window.currentPinId =
+                data.pinId ||
+                window.currentPinId ||
+                "";
+
+
+            /* -------------------------------------------------
+               Media URL
+               ------------------------------------------------- */
+
+            const mediaUrl =
+                data.mediaUrl;
+
+
+            if (
+                !mediaUrl ||
+                mediaUrl.trim() === ""
+            ) {
+
+                showError(
+                    "We could not find any downloadable image or video for this Pin."
+                );
+
+                resetMainButton();
+
+                return;
+            }
+
+
+            /* -------------------------------------------------
+               Media type
+               ------------------------------------------------- */
+
+            let mediaType =
+                data.mediaType;
+
+
+            if (!mediaType) {
+
+                if (
+                    mediaUrl.toLowerCase().includes(".mp4") ||
+                    mediaUrl.toLowerCase().includes(".m3u8")
+                ) {
+
+                    mediaType =
+                        "video";
+
+                } else {
+
+                    mediaType =
+                        "image";
+                }
+            }
+
+
+            console.log(
+                "Media type:",
+                mediaType
+            );
+
+            console.log(
+                "Media URL:",
+                mediaUrl
+            );
+
+
+            /* -------------------------------------------------
+               Show result
+               ------------------------------------------------- */
+
+            if (
+                mediaType === "video"
+            ) {
+
+                showVideoResult(
+                    data
+                );
+
+            } else {
+
+                showImageResult(
+                    data
+                );
+            }
+
+
+            resetMainButton();
+
+
+        } catch (error) {
+
+            console.error(
+                "Download error:",
+                error
+            );
+
+
+            clearTimeout(textTimer1);
+            clearTimeout(textTimer2);
+            clearTimeout(textTimer3);
+
+
+            showError(
+                "Something went wrong: " +
+                error.message
+            );
+
+
+            resetMainButton();
+
+        } finally {
+
+            downloadButton.disabled =
+                false;
+        }
+    }
+
+
+    /* =========================================================
+       RESET MAIN BUTTON
+       ========================================================= */
+
+    function resetMainButton() {
+
+        const button =
+            document.querySelector(
+                ".download-main"
+            );
+
+        if (!button) {
+            return;
+        }
+
+        button.innerText =
+            "Download";
+
+        button.disabled =
+            false;
+    }
+
+
+    /* =========================================================
+       SHOW ERROR
+       ========================================================= */
+
+    function showError(messageText) {
+
+        const message =
+            document.getElementById(
+                "message"
+            );
+
+        message.innerHTML = `
+
+            <div class="error-message">
+
+                <span class="error-icon">
+                    ✕
+                </span>
+
+                <div>
+
+                    <strong>
+                        Something went wrong
+                    </strong>
+
+                    <p>
+                        ${escapeHtml(messageText)}
+                    </p>
+
+                </div>
+
+            </div>
+
+        `;
+    }
+
+
+    /* =========================================================
+       ESCAPE HTML
+       ========================================================= */
+
+    function escapeHtml(text) {
+
+        const div =
+            document.createElement(
+                "div"
+            );
+
+        div.textContent =
+            text || "";
+
+        return div.innerHTML;
+    }
+
+
+    /* =========================================================
+       SHOW IMAGE RESULT
+       ========================================================= */
+
+    function showImageResult(data) {
+
+        const message =
+            document.getElementById(
+                "message"
+            );
+
+        const imageUrl =
+            data.mediaUrl;
+
+        const pinId =
+            data.pinId ||
+            window.currentPinId ||
+            "";
+
+
+        const downloadUrl =
+            "/api/download-image" +
+            "?url=" +
+            encodeURIComponent(imageUrl) +
+            "&pinId=" +
+            encodeURIComponent(pinId);
+
+
+        message.innerHTML = `
+
+            <div class="result-card">
+
+                <div class="success-message">
+                    ✓ Media ready
+                </div>
+
+                <h3 class="result-title">
+                    Pinterest Image
+                </h3>
+                <div class="pin-id">
+    Pin ID: ${escapeHtml(data.pinId || window.currentPinId || "")}
+</div>
+                <div
+    id="imageResolution"
+    class="video-resolution"
+>
+    Resolution: Loading...
+</div>
+
+<img
+    id="imagePreview"
+    src="${escapeHtml(imageUrl)}"
+    alt="Pinterest Image"
+    onload="showImageDimensions(this)"
+>
+                <a
+                    class="download-button"
+                    href="${downloadUrl}"
+                    onclick="startImageDownload()"
+                >
+
+                    <button
+                        type="button"
+                        id="imageDownloadButton"
+                    >
+                        Download Image
+                    </button>
+
+                </a>
+
+                <button
+                    type="button"
+                    class="download-another-button"
+                    onclick="downloadAnother()"
+                >
+                    Download Another
+                </button>
+
+            </div>
+
+        `;
+    }
+    function showImageDimensions(image) {
+
+        const existing =
+            document.getElementById(
+                "imageResolution"
+            );
+
+        if (!existing) {
+            return;
+        }
+
+        existing.innerText =
+            "Resolution: "
+            + image.naturalWidth
+            + " × "
+            + image.naturalHeight;
+    }
+
+    /* =========================================================
+       IMAGE LOAD ERROR
+       ========================================================= */
+
+    function imageLoadError() {
+
+        console.error(
+            "Image preview could not be loaded."
+        );
+    }
+
+
+    /* =========================================================
+       SHOW VIDEO RESULT
+       ========================================================= */
+
+    function showVideoResult(data) {
+
+        const message =
+            document.getElementById("message");
+
+        const mediaUrl =
+            data.mediaUrl;
+
+        const pinId =
+            data.pinId ||
+            window.currentPinId ||
+            "";
+
+        const qualities =
+            Array.isArray(data.videoQualities)
+                ? data.videoQualities
+                : [];
+
+
+        let selectedUrl =
+            mediaUrl;
+
+
+        if (
+            qualities.length > 0 &&
+            qualities[0].url
+        ) {
+
+            selectedUrl =
+                qualities[0].url;
+        }
+
+
+        let qualityHtml =
+            "";
+
+
+        if (qualities.length > 0) {
+
+            qualityHtml = `
+
+            <div class="video-quality">
+
+                <label for="videoQuality">
+                    Video Quality
+                </label>
+
+                <select
+                    id="videoQuality"
+                    onchange="changeVideoQuality(this.value)"
+                >
+
+        `;
+
+
+            qualities.forEach(
+                function(item, index) {
+
+                    const quality =
+                        item.quality
+                            ? item.quality +
+                            " — " +
+                            (item.width || "?") +
+                            " × " +
+                            (item.height || "?")
+                            : "Video";
+
+
+                    const url =
+                        item.url || "";
+
+
+                    qualityHtml += `
+
+                    <option
+                        value="${escapeHtml(url)}"
+                        data-quality="${escapeHtml(
+                        item.quality || "video"
+                    )}"
+                        data-width="${escapeHtml(
+                        String(item.width || "")
+                    )}"
+                        data-height="${escapeHtml(
+                        String(item.height || "")
+                    )}"
+                        ${index === 0 ? "selected" : ""}
+                    >
+                        ${escapeHtml(quality)}
+                    </option>
+
+                `;
+                }
+            );
+
+
+            qualityHtml += `
+
+                </select>
+
+            </div>
+
+        `;
+        }
+
+
+        const firstWidth =
+            qualities.length > 0
+                ? qualities[0].width || "?"
+                : "?";
+
+
+        const firstHeight =
+            qualities.length > 0
+                ? qualities[0].height || "?"
+                : "?";
+
+
+        message.innerHTML = `
+
+        <div class="result-card">
+
+            <div class="success-message">
+                ✓ Media ready
+            </div>
+
+            <h3 class="result-title">
+                Pinterest Video
+            </h3>
+<div class="pin-id">
+    Pin ID: ${escapeHtml(pinId)}
+</div>
+      <div
+    id="videoResolution"
+    class="video-resolution"
+>
+    Quality:
+    ${qualities.length > 0
+            ? qualities[0].quality
+            : "Video"
+        }
+    <br>
+    Resolution:
+    ${firstWidth} × ${firstHeight}
+</div>
+
+            ${qualityHtml}
+
+            <video
+                id="videoPreview"
+                controls
+                preload="metadata"
+            >
+
+                <source
+                    src="${escapeHtml(selectedUrl)}"
+                    type="video/mp4"
+                >
+
+                Your browser does not support
+                video playback.
+
+            </video>
+
+
+            <a
+                id="downloadVideoButton"
+                class="download-button"
+                href="#"
+                data-video-url="${escapeHtml(selectedUrl)}"
+                data-pin-id="${escapeHtml(pinId)}"
+                onclick="event.preventDefault(); startVideoDownload();"
+            >
+
+                <button
+                    type="button"
+                    id="videoDownloadButton"
+                >
+                    Download Video
+                </button>
+
+            </a>
+
+
+            <button
+                type="button"
+                class="download-another-button"
+                onclick="downloadAnother()"
+            >
+                Download Another
+            </button>
+
+        </div>
+
+    `;
+    }
+
+
+    /* =========================================================
+       CHANGE VIDEO QUALITY
+       ========================================================= */
+
+    function changeVideoQuality(videoUrl) {
+
+        const video =
+            document.getElementById("videoPreview");
+
+        const downloadButton =
+            document.getElementById("downloadVideoButton");
+
+        const qualitySelect =
+            document.getElementById("videoQuality");
+
+        const resolution =
+            document.getElementById("videoResolution");
+
+        if (!video || !downloadButton) {
+            return;
+        }
+
+        if (!videoUrl || videoUrl.trim() === "") {
+            return;
+        }
+
+        video.src = videoUrl;
+        video.load();
+
+        downloadButton.dataset.videoUrl =
+            videoUrl;
+
+        if (qualitySelect && resolution) {
+
+            const selectedOption =
+                qualitySelect.options[
+                    qualitySelect.selectedIndex
+                    ];
+
+            const width =
+                selectedOption.dataset.width || "?";
+
+            const height =
+                selectedOption.dataset.height || "?";
+
+            const quality =
+                selectedOption.dataset.quality || "Video";
+
+            resolution.innerHTML =
+                "Quality: "
+                + escapeHtml(quality)
+                + "<br>"
+                + "Resolution: "
+                + width
+                + " × "
+                + height;
+        }
+    }
+
+
+    /* =========================================================
+       IMAGE DOWNLOAD BUTTON
+       ========================================================= */
+
+    function startImageDownload() {
+
+        const button =
+            document.getElementById(
+                "imageDownloadButton"
+            );
+
+
+        if (!button) {
+            return;
+        }
+
+
+        button.innerHTML = `
+            <span class="download-spinner"></span>
+            Downloading...
+        `;
+
+
+        button.disabled =
+            true;
+
+
+        setTimeout(function() {
+
+            if (button) {
+
+                button.innerText =
+                    "Download Image";
+
+                button.disabled =
+                    false;
+            }
+
+        }, 3000);
+    }
+
+
+    /* =========================================================
+       VIDEO DOWNLOAD BUTTON
+       ========================================================= */
+
+    function startVideoDownload() {
+
+        const button =
+            document.getElementById(
+                "videoDownloadButton"
+            );
+
+        const downloadLink =
+            document.getElementById(
+                "downloadVideoButton"
+            );
+
+
+        if (!button || !downloadLink) {
+            return;
+        }
+
+
+        const videoUrl =
+            downloadLink.dataset.videoUrl;
+
+        const pinId =
+            downloadLink.dataset.pinId ||
+            window.currentPinId ||
+            "";
+
+        const qualitySelect =
+            document.getElementById(
+                "videoQuality"
+            );
+
+        const selectedQuality =
+            qualitySelect
+                ? qualitySelect.options[
+                    qualitySelect.selectedIndex
+                    ].dataset.quality
+                : "video";
+
+        if (!videoUrl) {
+
+            alert(
+                "Video URL is missing."
+            );
+
+            return;
+        }
+
+
+        if (!pinId) {
+
+            alert(
+                "Pin ID is missing."
+            );
+
+            return;
+        }
+
+
+        button.innerHTML = `
+            <span class="download-spinner"></span>
+            Downloading...
+        `;
+
+        button.disabled =
+            true;
+
+
+        const params =
+            new URLSearchParams();
+
+
+        params.set(
+            "url",
+            videoUrl
+        );
+
+        params.set(
+            "pinId",
+            pinId
+        );
+        params.set(
+            "quality",
+            selectedQuality
+        );
+
+
+        const downloadUrl =
+            "/api/download-video?" +
+            params.toString();
+
+
+        console.log(
+            "Starting video download:",
+            downloadUrl
+        );
+
+
+        window.location.href =
+            downloadUrl;
+
+
+        setTimeout(function() {
+
+            button.innerText =
+                "Download Video";
+
+            button.disabled =
+                false;
+
+        }, 5000);
+    }
+
+
+    /* =========================================================
+       CLEAR
+       ========================================================= */
+
+    function clearDownloader() {
+
+        const input =
+            document.getElementById(
+                "pinterestUrl"
+            );
+
+        const message =
+            document.getElementById(
+                "message"
+            );
+
+
+        input.value =
+            "";
+
+        message.innerHTML =
+            "";
+
+        window.currentPinId =
+            "";
+
+
+        resetMainButton();
+
+        input.focus();
+    }
+
+
+    /* =========================================================
+       DOWNLOAD ANOTHER
+       ========================================================= */
+
+    function downloadAnother() {
+
+        const input =
+            document.getElementById(
+                "pinterestUrl"
+            );
+
+        const message =
+            document.getElementById(
+                "message"
+            );
+
+
+        input.value =
+            "";
+
+        message.innerHTML =
+            "";
+
+        window.currentPinId =
+            "";
+
+
+        resetMainButton();
+
+        input.focus();
+
+
+        window.scrollTo({
+
+            top:
+                document.querySelector(
+                    ".downloader"
+                ).offsetTop - 50,
+
+            behavior:
+                "smooth"
+        });
+    }
+
+
+    /* =========================================================
+       ENTER KEY
+       ========================================================= */
+
+    document
+        .getElementById("pinterestUrl")
+        .addEventListener(
+            "keydown",
+            function(event) {
+
+                if (
+                    event.key === "Enter"
+                ) {
+
+                    event.preventDefault();
+
+                    downloadPinterest();
+                }
+
+            }
+        );
+
+</script>
+
+</body>
+
+</html>
