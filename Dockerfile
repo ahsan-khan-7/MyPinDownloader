@@ -1,3 +1,16 @@
+# Build stage
+FROM maven:3.9-eclipse-temurin-17 AS build
+
+WORKDIR /build
+
+COPY pom.xml .
+COPY .mvn .mvn
+COPY src src
+
+RUN mvn -DskipTests package
+
+
+# Runtime stage
 FROM eclipse-temurin:17-jre-jammy
 
 RUN apt-get update \
@@ -6,7 +19,7 @@ RUN apt-get update \
 
 WORKDIR /app
 
-COPY target/MyPinDownloader-0.0.1-SNAPSHOT.jar app.jar
+COPY --from=build /build/target/*.jar app.jar
 
 EXPOSE 8080
 
